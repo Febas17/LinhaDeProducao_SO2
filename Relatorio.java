@@ -112,11 +112,14 @@ public class Relatorio {
         }
 
         System.out.println("Total processado por maquina:");
+        int totalVisitas = 0;
         for (Map.Entry<String, Integer> entry : pecasPorMaquina.entrySet()) {
             System.out.println("  " + entry.getKey() + ": " + entry.getValue());
+            totalVisitas += entry.getValue();
         }
+        System.out.println("Total de visitas a etapas: " + totalVisitas);
 
-        System.out.println("Ocupacao maxima das filas:");
+        System.out.println("Ocupacao maxima das filas (pode incluir marcadores FIM):");
         boolean todasVazias = true;
         for (FilaLimitada f : filas) {
             System.out.println("  " + f.getNome() + ": max=" + f.getMaiorOcupacao() + " | vazia=" + f.estaVazia());
@@ -126,6 +129,8 @@ public class Relatorio {
         }
 
         System.out.println("Todas as filas vazias ao final? " + (todasVazias ? "SIM" : "NAO"));
+        boolean pecaSemDestino = (totalEmbaladas + descartadas.size()) != totalCriadas;
+        System.out.println("Alguma peca sem destino final? " + (pecaSemDestino ? "SIM (ERRO)" : "NAO (Todas embaladas ou descartadas)"));
         System.out.println("Tempo total de simulacao: " + tempoTotal + " ms");
         System.out.println("=================================================");
     }
