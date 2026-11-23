@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.*;
@@ -193,6 +196,56 @@ public class FabricaGUI extends JFrame {
         comboCenarios.setBackground(new Color(24, 30, 44));
         comboCenarios.setForeground(Color.WHITE);
         comboCenarios.setFont(new Font("Consolas", Font.BOLD, 12));
+        comboCenarios.setBorder(BorderFactory.createLineBorder(new Color(0, 229, 255), 1));
+        comboCenarios.setFocusable(false);
+        comboCenarios.setOpaque(true);
+
+        // Força BasicComboBoxUI para ignorar temas nativos do Windows que forçam fundo branco
+        comboCenarios.setUI(new BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton btn = new JButton() {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        Graphics2D g2 = (Graphics2D) g.create();
+                        g2.setColor(new Color(32, 40, 58));
+                        g2.fillRect(0, 0, getWidth(), getHeight());
+                        g2.setColor(new Color(0, 229, 255));
+                        g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                        FontMetrics fm = g2.getFontMetrics();
+                        g2.drawString("▼", (getWidth() - fm.stringWidth("▼")) / 2, (getHeight() + fm.getAscent() - 2) / 2);
+                        g2.dispose();
+                    }
+                };
+                btn.setBorder(BorderFactory.createEmptyBorder());
+                btn.setContentAreaFilled(false);
+                btn.setFocusPainted(false);
+                btn.setOpaque(true);
+                btn.setPreferredSize(new Dimension(26, 28));
+                return btn;
+            }
+
+            @Override
+            public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
+                g.setColor(new Color(24, 30, 44));
+                g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            }
+
+            @Override
+            protected ComboPopup createPopup() {
+                BasicComboPopup popup = new BasicComboPopup(comboBox) {
+                    @Override
+                    protected JScrollPane createScroller() {
+                        JScrollPane scroller = super.createScroller();
+                        scroller.setBorder(BorderFactory.createLineBorder(new Color(0, 229, 255), 1));
+                        return scroller;
+                    }
+                };
+                popup.setBorder(BorderFactory.createLineBorder(new Color(0, 229, 255), 1));
+                return popup;
+            }
+        });
+
         comboCenarios.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -211,10 +264,23 @@ public class FabricaGUI extends JFrame {
             }
         });
 
-        btnIniciar = criarBotaoArcade("▶ INICIAR SIMULACAO", new Color(0, 230, 118), Color.BLACK);
+        // Botões de navegação rápida de cenário < e >
+        JButton btnCenarioAnt = criarBotaoArcade("<", new Color(36, 44, 60), new Color(0, 229, 255));
+        btnCenarioAnt.addActionListener(e -> {
+            int idx = comboCenarios.getSelectedIndex();
+            if (idx > 0) comboCenarios.setSelectedIndex(idx - 1);
+        });
+
+        JButton btnCenarioProx = criarBotaoArcade(">", new Color(36, 44, 60), new Color(0, 229, 255));
+        btnCenarioProx.addActionListener(e -> {
+            int idx = comboCenarios.getSelectedIndex();
+            if (idx < comboCenarios.getItemCount() - 1) comboCenarios.setSelectedIndex(idx + 1);
+        });
+
+        btnIniciar = criarBotaoArcade("INICIAR", new Color(0, 230, 118), Color.BLACK);
         btnIniciar.addActionListener(e -> iniciarSimulacao());
 
-        btnReiniciar = criarBotaoArcade("↺ REINICIAR", new Color(255, 112, 67), Color.BLACK);
+        btnReiniciar = criarBotaoArcade("REINICIAR", new Color(255, 112, 67), Color.BLACK);
         btnReiniciar.addActionListener(e -> reiniciarSimulacao());
 
         JLabel lblVel = new JLabel("VELOCIDADE:");
@@ -243,7 +309,9 @@ public class FabricaGUI extends JFrame {
         lblStatusGeral.setFont(new Font("Consolas", Font.BOLD, 13));
 
         barraControles.add(lblCenario);
+        barraControles.add(btnCenarioAnt);
         barraControles.add(comboCenarios);
+        barraControles.add(btnCenarioProx);
         barraControles.add(btnIniciar);
         barraControles.add(btnReiniciar);
         barraControles.add(lblVel);
