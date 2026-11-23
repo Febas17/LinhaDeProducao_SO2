@@ -28,9 +28,13 @@ public class Configuracao {
     public static int DURACAO_EMBALAGEM_PECA = 150;
     public static int DURACAO_FECHAMENTO_CAIXA = 300;
 
-    // Calcula o tempo ajustado pelo fator de tempo
+    // Multiplicador de velocidade (utilizado pela GUI e ajustes dinâmicos)
+    public static volatile double MULTIPLICADOR_VELOCIDADE = 1.0;
+
+    // Calcula o tempo ajustado pelo fator de tempo e multiplicador de velocidade
     public static long tempo(int ms) {
-        return Math.max(1, Math.round(ms * FATOR_TEMPO));
+        double fatorEfetivo = FATOR_TEMPO / Math.max(0.1, MULTIPLICADOR_VELOCIDADE);
+        return Math.max(1, Math.round(ms * fatorEfetivo));
     }
 
     // Configura os parâmetros para cada um dos 5 experimentos obrigatórios (Seção 6 do PDF)

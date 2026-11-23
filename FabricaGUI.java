@@ -136,6 +136,39 @@ public class FabricaGUI extends JFrame {
         maquinas.put("E1", new InfoMaquina("E1", "Embalagem", 1030, 275, 120, 95));
     }
 
+    private JButton criarBotaoArcade(String texto, Color corFundo, Color corTexto) {
+        JButton btn = new JButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (!isEnabled()) {
+                    g2.setColor(new Color(45, 52, 65));
+                } else if (getModel().isPressed()) {
+                    g2.setColor(corFundo.darker());
+                } else if (getModel().isRollover()) {
+                    g2.setColor(corFundo.brighter());
+                } else {
+                    g2.setColor(corFundo);
+                }
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setColor(new Color(255, 255, 255, 60));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setContentAreaFilled(false);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(false);
+        btn.setForeground(corTexto);
+        btn.setFont(new Font("Consolas", Font.BOLD, 13));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
+        return btn;
+    }
+
     private void configurarInterface() {
         JPanel painelPrincipal = new JPanel(new BorderLayout());
         painelPrincipal.setBackground(new Color(18, 20, 28));
@@ -157,35 +190,52 @@ public class FabricaGUI extends JFrame {
                 "5: Carga Ampliada (48 pecas - Turbo 0.1x)"
         };
         comboCenarios = new JComboBox<>(cenariosNomes);
-        comboCenarios.setBackground(new Color(32, 38, 54));
+        comboCenarios.setBackground(new Color(24, 30, 44));
         comboCenarios.setForeground(Color.WHITE);
-        comboCenarios.setFont(new Font("Consolas", Font.PLAIN, 12));
+        comboCenarios.setFont(new Font("Consolas", Font.BOLD, 12));
+        comboCenarios.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (isSelected) {
+                    lbl.setBackground(new Color(0, 229, 255));
+                    lbl.setForeground(Color.BLACK);
+                } else {
+                    lbl.setBackground(new Color(24, 30, 44));
+                    lbl.setForeground(new Color(240, 245, 250));
+                }
+                lbl.setOpaque(true);
+                lbl.setFont(new Font("Consolas", Font.BOLD, 12));
+                lbl.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+                return lbl;
+            }
+        });
 
-        btnIniciar = new JButton("▶ INICIAR SIMULACAO");
-        btnIniciar.setBackground(new Color(0, 200, 83));
-        btnIniciar.setForeground(Color.BLACK);
-        btnIniciar.setFont(new Font("Consolas", Font.BOLD, 13));
-        btnIniciar.setFocusPainted(false);
+        btnIniciar = criarBotaoArcade("▶ INICIAR SIMULACAO", new Color(0, 230, 118), Color.BLACK);
         btnIniciar.addActionListener(e -> iniciarSimulacao());
 
-        btnReiniciar = new JButton("↺ REINICIAR");
-        btnReiniciar.setBackground(new Color(55, 71, 79));
-        btnReiniciar.setForeground(Color.WHITE);
-        btnReiniciar.setFont(new Font("Consolas", Font.BOLD, 13));
-        btnReiniciar.setFocusPainted(false);
+        btnReiniciar = criarBotaoArcade("↺ REINICIAR", new Color(255, 112, 67), Color.BLACK);
         btnReiniciar.addActionListener(e -> reiniciarSimulacao());
 
         JLabel lblVel = new JLabel("VELOCIDADE:");
         lblVel.setForeground(new Color(255, 214, 0));
         lblVel.setFont(new Font("Consolas", Font.BOLD, 12));
 
-        sliderVelocidade = new JSlider(10, 200, 100);
+        // Slider de velocidade: 5 (0.5x - Câmera Lenta) a 50 (5.0x - Turbo)
+        sliderVelocidade = new JSlider(5, 50, 10);
         sliderVelocidade.setBackground(new Color(24, 28, 40));
         sliderVelocidade.setForeground(Color.WHITE);
-        sliderVelocidade.setPreferredSize(new Dimension(130, 25));
+        sliderVelocidade.setPreferredSize(new Dimension(110, 25));
+
+        JLabel lblVelocidadeValor = new JLabel("1.0x");
+        lblVelocidadeValor.setForeground(new Color(0, 229, 255));
+        lblVelocidadeValor.setFont(new Font("Consolas", Font.BOLD, 12));
+        lblVelocidadeValor.setPreferredSize(new Dimension(38, 25));
+
         sliderVelocidade.addChangeListener(e -> {
-            double novoFator = sliderVelocidade.getValue() / 100.0;
-            Configuracao.FATOR_TEMPO = Math.max(0.05, novoFator);
+            double mult = sliderVelocidade.getValue() / 10.0;
+            lblVelocidadeValor.setText(String.format(Locale.US, "%.1fx", mult));
+            Configuracao.MULTIPLICADOR_VELOCIDADE = mult;
         });
 
         lblStatusGeral = new JLabel("STATUS: PRONTO");
@@ -198,6 +248,7 @@ public class FabricaGUI extends JFrame {
         barraControles.add(btnReiniciar);
         barraControles.add(lblVel);
         barraControles.add(sliderVelocidade);
+        barraControles.add(lblVelocidadeValor);
         barraControles.add(lblStatusGeral);
 
         painelFabrica = new PainelFabrica();
@@ -305,6 +356,7 @@ public class FabricaGUI extends JFrame {
         reiniciarDadosVisual();
 
         int cenarioIndex = comboCenarios.getSelectedIndex() + 1;
+        Configuracao.MULTIPLICADOR_VELOCIDADE = sliderVelocidade.getValue() / 10.0;
 
         threadSimulacao = new Thread(() -> {
             Fabrica.executarCenario(cenarioIndex);
@@ -329,6 +381,7 @@ public class FabricaGUI extends JFrame {
         comboCenarios.setEnabled(true);
         lblStatusGeral.setText("STATUS: REINICIADO");
         lblStatusGeral.setForeground(new Color(176, 190, 197));
+        Configuracao.MULTIPLICADOR_VELOCIDADE = sliderVelocidade.getValue() / 10.0;
         reiniciarDadosVisual();
         repaint();
     }
@@ -797,6 +850,10 @@ public class FabricaGUI extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                UIManager.put("ComboBox.background", new Color(24, 30, 44));
+                UIManager.put("ComboBox.foreground", Color.WHITE);
+                UIManager.put("ComboBox.selectionBackground", new Color(0, 229, 255));
+                UIManager.put("ComboBox.selectionForeground", Color.BLACK);
             } catch (Exception ignored) {
             }
             FabricaGUI gui = new FabricaGUI();
