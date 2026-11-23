@@ -37,6 +37,8 @@ javac *.java
 ```
 
 ### Execução:
+
+#### 1. Modo Terminal (Texto / Logs Oficiais de SO):
 Por padrão, executar sem argumentos roda o **Experimento 1 (Fluxo Completo)**:
 ```bash
 java Fabrica
@@ -49,6 +51,12 @@ java Fabrica 2   # Experimento 2: Armazenamento Reduzido (Filas com Capacidade 1
 java Fabrica 3   # Experimento 3: Inspeção Lenta (Gargalo e Propagação de Espera)
 java Fabrica 4   # Experimento 4: Disputa por Exaustor (Soldagem e Pintura com 600ms)
 java Fabrica 5   # Experimento 5: Carga Ampliada (48 peças, sem pausa, fator 0.1)
+```
+
+#### 2. Modo Gráfico Pixel Art (Interface Visual da Linha de Produção):
+Para abrir a interface gráfica animada em tempo real com esteira, iluminação de máquinas, duto do exaustor e caixas:
+```bash
+java FabricaGUI
 ```
 
 ---
@@ -87,3 +95,4 @@ Todos os parâmetros da fábrica estão centralizados na classe `Configuracao.ja
 * `Maquina.java`: Thread trabalhadora padrão (`C1, C2, F1, S1, P1, I1, I2`).
 * `MaquinaEmbalagem.java`: Thread da embaladora `E1` com lógica de fechamento de caixas completas e parciais.
 * `Fabrica.java`: Orquestrador principal (instanciação, injeção de peças, encerramento em cascata e verificação).
+* `FabricaGUI.java`: Interface gráfica interativa estilo Pixel Art 16-bit com esteira animada, monitoramento das máquinas, ocupação dos buffers, duto do exaustor e caixas.

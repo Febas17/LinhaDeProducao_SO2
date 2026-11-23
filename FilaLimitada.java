@@ -3,6 +3,7 @@ import java.util.concurrent.Semaphore;
 
 public class FilaLimitada {
     private final String nome;
+    private final int capacidade;
     private final ArrayDeque<Peca> fila;
     private final Semaphore vagas;
     private final Semaphore itens;
@@ -13,6 +14,7 @@ public class FilaLimitada {
 
     public FilaLimitada(String nome, int capacidade) {
         this.nome = nome;
+        this.capacidade = capacidade;
         this.fila = new ArrayDeque<>();
         this.vagas = new Semaphore(capacidade);
         this.itens = new Semaphore(0);
@@ -52,6 +54,10 @@ public class FilaLimitada {
 
     public String getNome() {
         return nome;
+    }
+
+    public int getCapacidade() {
+        return capacidade;
     }
 
     public int getOcupacaoAtual() {

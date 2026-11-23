@@ -4,6 +4,9 @@ import java.util.concurrent.Semaphore;
 
 public class Fabrica {
 
+    public static volatile List<FilaLimitada> filasAtivas;
+    public static volatile Semaphore exaustorAtivo;
+
     public static void main(String[] args) {
         int cenario = 1;
 
@@ -43,6 +46,9 @@ public class Fabrica {
 
         // 3. Instanciação do recurso auxiliar compartilhado (Exaustor)
         Semaphore exaustor = new Semaphore(1);
+
+        filasAtivas = Arrays.asList(filaCorte, filaFuracao, filaSoldagem, filaPintura, filaInspecao, filaEmbalagem);
+        exaustorAtivo = exaustor;
 
         // 4. Instanciação das 8 máquinas concorrentes
         // Setor de Corte (compartilham filaCorte e filaFuracao)

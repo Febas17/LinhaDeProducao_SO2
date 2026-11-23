@@ -13,6 +13,23 @@ public class Relatorio {
     private final List<Integer> descartadas;
     private final List<List<Integer>> caixas;
 
+    public interface Listener {
+        void onLog(long tempoMs, String maquina, int pecaId, String evento);
+        void onAprovada(int id);
+        void onDescartada(int id);
+        void onCaixa(List<Integer> pecasCaixa, int numeroCaixa);
+    }
+
+    private static volatile Listener listener;
+
+    public static void setListener(Listener l) {
+        listener = l;
+    }
+
+    public static Listener getListener() {
+        return listener;
+    }
+
     public Relatorio() {
         this.inicioMs = System.currentTimeMillis();
         this.mutexRelatorio = new Semaphore(1);
@@ -35,6 +52,10 @@ public class Relatorio {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+
+        if (listener != null) {
+            listener.onLog(tempo, maquina, pecaId, evento);
         }
     }
 
@@ -63,6 +84,9 @@ public class Relatorio {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        if (listener != null) {
+            listener.onAprovada(id);
+        }
     }
 
     public void registrarDescartada(int id) {
@@ -76,14 +100,18 @@ public class Relatorio {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        if (listener != null) {
+            listener.onDescartada(id);
+        }
     }
 
     public int registrarCaixa(List<Integer> pecasCaixa) {
+        int numero;
         try {
             mutexRelatorio.acquire();
             try {
                 caixas.add(new ArrayList<>(pecasCaixa));
-                return caixas.size();
+                numero = caixas.size();
             } finally {
                 mutexRelatorio.release();
             }
@@ -91,6 +119,10 @@ public class Relatorio {
             Thread.currentThread().interrupt();
             return -1;
         }
+        if (listener != null) {
+            listener.onCaixa(pecasCaixa, numero);
+        }
+        return numero;
     }
 
     public void imprimirResumoFinal(List<FilaLimitada> filas, int totalCriadas) {
