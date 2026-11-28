@@ -29,14 +29,18 @@ $$\text{Corte } (C1, C2) \longrightarrow \text{Furação } (F1) \longrightarrow 
 
 ## 2. Como Compilar e Executar
 
-O projeto foi construído em Java puro (sem pacotes externos), permitindo compilação e execução direta via terminal:
+### 🚀 Execução Rápida com 2 Cliques no Windows (Arquivos .bat):
+* **`executar_gui.bat`**: Compila e abre diretamente a **Interface Gráfica Pixel Art**.
+* **`executar_terminal.bat`**: Abre um menu interativo no terminal para rodar qualquer um dos **5 cenários** ou abrir a interface gráfica.
 
-### Compilação:
+---
+
+### Execução via Linha de Comando:
+
+#### Compilação:
 ```bash
 javac *.java
 ```
-
-### Execução:
 
 #### 1. Modo Terminal (Texto / Logs Oficiais de SO):
 Por padrão, executar sem argumentos roda o **Experimento 1 (Fluxo Completo)**:
